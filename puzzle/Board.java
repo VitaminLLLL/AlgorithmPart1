@@ -15,7 +15,6 @@ public class Board {
     private final int n;
     private int zero;
     private int twinTile1 = -1, twinTile2 = -1;
-    private Stack<Board> neighbours = new Stack<>();
 
     /**
      * Create a board from an n-by-n array of tiles,
@@ -154,7 +153,8 @@ public class Board {
     /**
      * Count number of neighbour's board and add tile index in the List
      */
-    private void addNeighbours() {
+    private Iterable<Board> addNeighbours() {
+        Stack<Board> neighbours = new Stack<>();
         int zeroI = zero / n;
         int zeroJ = zero % n;
         int adjacent;
@@ -182,6 +182,7 @@ public class Board {
             neighbours.push(new Board(tiles));
             swap(adjacent, zero);
         }
+        return neighbours;
     }
 
     /**
@@ -190,10 +191,7 @@ public class Board {
      * @return Stack<Board>
      */
     public Iterable<Board> neighbors() {
-        if (neighbours.isEmpty()) {
-            addNeighbours();
-        }
-        return neighbours;
+        return addNeighbours();
     }
 
     /**
