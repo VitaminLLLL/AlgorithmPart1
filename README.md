@@ -4,6 +4,10 @@
 
 [Assignment Specification](https://coursera.cs.princeton.edu/algs4/assignments/percolation/specification.php)
 
+## Queues
+
+[Assignment Specification](https://coursera.cs.princeton.edu/algs4/assignments/queues/specification.php)
+
 ## Puzzle
 
 [Assignment Specification](https://coursera.cs.princeton.edu/algs4/assignments/8puzzle/faq.php)
