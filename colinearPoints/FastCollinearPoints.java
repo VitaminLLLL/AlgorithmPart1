@@ -1,3 +1,10 @@
+/*******************************************************************************
+ * Copyright (c) 2023. VitaminL
+ * All rights reserved.
+ * <p>
+ * Fast, quite close in the initial design, learn the idea from the post.
+ ******************************************************************************/
+
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.MergeX;
 import edu.princeton.cs.algs4.StdDraw;
@@ -8,11 +15,41 @@ import java.util.Arrays;
 import java.util.List;
 
 public class FastCollinearPoints {
-    private int numberOfSegments = 0;
-    private List<Line> lines = new ArrayList<>();
     private List<LineSegment> lineSegments = new ArrayList<>();
 
     public FastCollinearPoints(Point[] points) {
+        nullPointCheck(points);
+        int n = points.length;
+        Point[] copy = Arrays.copyOf(points, n);
+        MergeX.sort(copy);
+        repeatedPointCheck(copy);
+        if (n < 4) return;
+        for (int i = 0; i < n; i++) {
+            Point p = copy[i];
+            Point[] sub = Arrays.copyOf(copy, n);
+            // Sorting slope
+            MergeX.sort(sub, p.slopeOrder());
+            int count = 0;
+            Point p1 = sub[1];
+            double slope = p.slopeTo(p1);
+            for (int j = 2; j < n; j++) {
+                double current = p.slopeTo(sub[j]);
+                if (slope == current) {
+                    count++;
+                } else {
+                    if (count > 1 && p.compareTo(p1) < 0)
+                        lineSegments.add(new LineSegment(p, sub[j - 1]));
+                    count = 0;
+                    slope = current;
+                    p1 = sub[j];
+                }
+            }
+            if (count > 1 && p.compareTo(p1) < 0)
+                lineSegments.add(new LineSegment(p, sub[sub.length - 1]));
+        }
+    }
+
+    private void nullPointCheck(Point[] points) {
         if (points == null) {
             throw new IllegalArgumentException("points is null!");
         }
@@ -21,72 +58,18 @@ public class FastCollinearPoints {
                 throw new IllegalArgumentException("points[" + i + "] is null!");
             }
         }
-        // Sorting points
-        Point[] pointsCopy = Arrays.copyOf(points, points.length);
-        MergeX.sort(pointsCopy);
-        for (int i = 0; i < pointsCopy.length - 1; i++) {
-            if (pointsCopy[i].compareTo(pointsCopy[i + 1]) == 0) {
+    }
+
+    private void repeatedPointCheck(Point[] points) {
+        for (int i = 0; i < points.length - 1; i++) {
+            if (points[i].compareTo(points[i + 1]) == 0) {
                 throw new IllegalArgumentException("Repeated points!");
             }
         }
-        for (int p = 0; p < pointsCopy.length - 1; p++) {
-            Point[] sub = Arrays.copyOfRange(pointsCopy, p + 1, pointsCopy.length);
-            // Sorting slope
-            MergeX.sort(sub, pointsCopy[p].slopeOrder());
-            int count = 0;
-            double slope = pointsCopy[p].slopeTo(sub[0]);
-            for (int i = 1; i < sub.length; i++) {
-                double current = pointsCopy[p].slopeTo(sub[i]);
-                if (isLineSegmentAdded(current, sub[i])) {
-                    count = 0;
-                    continue;
-                }
-                if (slope == current) {
-                    count++;
-                } else {
-                    if (count > 1) {
-                        numberOfSegments++;
-                        lineSegments.add(new LineSegment(pointsCopy[p], sub[i - 1]));
-                        lines.add(new Line(slope, sub[i - 1]));
-                    }
-                    slope = pointsCopy[p].slopeTo(sub[i]);
-                    count = 0;
-                }
-            }
-            if (count > 1) {
-                numberOfSegments++;
-                lineSegments.add(new LineSegment(pointsCopy[p], sub[sub.length - 1]));
-                lines.add(new Line(slope, sub[sub.length - 1]));
-            }
-        }
-    }
-
-    private boolean isLineSegmentAdded(double slope, Point p) {
-        for (Line line : lines) {
-            if (line.isSubSegments(slope, p))
-                return true;
-        }
-        return false;
-    }
-
-    private static class Line {
-        double slope;
-        Point p;
-
-        public Line(double slope, Point p) {
-            this.slope = slope;
-            this.p = p;
-        }
-
-        // if point pair in the same line
-        public boolean isSubSegments(double slope, Point q) {
-            return this.slope == slope && p == q;
-        }
-
     }
 
     public int numberOfSegments() {
-        return numberOfSegments;
+        return lineSegments.size();
     }
 
     public LineSegment[] segments() {

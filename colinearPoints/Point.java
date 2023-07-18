@@ -92,13 +92,11 @@ public class Point implements Comparable<Point> {
         if (that == null) {
             throw new NullPointerException("Input is NULL!");
         }
-        if (this.y > that.y) {
-            return 1;
-        } else if (this.y < that.y) {
-            return -1;
-        } else {
+        int result = Integer.compare(this.y, that.y);
+        if (result == 0)
             return Integer.compare(this.x, that.x);
-        }
+        else
+            return result;
     }
 
     /**
@@ -109,18 +107,18 @@ public class Point implements Comparable<Point> {
      */
     public Comparator<Point> slopeOrder() {
         /* YOUR CODE HERE */
-        return new SlopeOrderComparator(x, y);
+        return new SlopeOrder(x, y);
     }
 
-    private static class SlopeOrderComparator implements Comparator<Point> {
-        private final Point point;
+    private static class SlopeOrder implements Comparator<Point> {
+        private final Point p;
 
-        public SlopeOrderComparator(int x, int y) {
-            this.point = new Point(x, y);
+        public SlopeOrder(int x, int y) {
+            p = new Point(x, y);
         }
 
         public int compare(Point p1, Point p2) {
-            return Double.compare(point.slopeTo(p1), point.slopeTo(p2));
+            return Double.compare(p.slopeTo(p1), p.slopeTo(p2));
         }
     }
 
