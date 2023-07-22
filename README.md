@@ -15,3 +15,7 @@
 ## Week 4 Puzzle
 
 [Assignment Specification](https://coursera.cs.princeton.edu/algs4/assignments/8puzzle/specification.php)
+
+## Week 5 KD tree
+
+[Assignment Specification](https://coursera.cs.princeton.edu/algs4/assignments/kdtree/specification.php)
