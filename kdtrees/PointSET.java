@@ -1,11 +1,11 @@
-import edu.princeton.cs.algs4.*;
-
 /*******************************************************************************
  * Copyright (c) 2023. VitaminL
  * All rights reserved.
  * <p>
  * PointSET, Bruteforce implementation of unit square points
  ******************************************************************************/
+
+import edu.princeton.cs.algs4.*;
 
 public class PointSET {
     SET<Point2D> sets;
@@ -14,46 +14,95 @@ public class PointSET {
         sets = new SET<>();
     }
 
+    /**
+     * Return True if PointSet is empty
+     *
+     * @return True if set is empty.
+     */
     public boolean isEmpty() {
         return sets.isEmpty();
     }
 
+    /**
+     * Returns number of points in the PointSET
+     *
+     * @return number of points - int
+     */
     public int size() {
         return sets.size();
     }
 
+    /**
+     * Insert the point into PointSet
+     *
+     * @param p point
+     * @throws IllegalArgumentException if point is null
+     */
     public void insert(Point2D p) {
         sets.add(p);
     }
 
+    /**
+     * Check if set contains point
+     *
+     * @param p point
+     * @return True if set contains point
+     * @throws IllegalArgumentException if point is null
+     */
     public boolean contains(Point2D p) {
         return sets.contains(p);
     }
 
+    /**
+     * Draw all the points into {@link StdDraw#point(double, double)}
+     */
     public void draw() {
         for (Point2D p : sets) {
             StdDraw.point(p.x(), p.y());
         }
     }
 
+    /**
+     * Return all points that are inside the rectangle (or on the boundary)
+     *
+     * @param rect rectangle
+     * @return A list of points inside rectangle
+     * @throws IllegalArgumentException if rect is null
+     */
     public Iterable<Point2D> range(RectHV rect) {
         if (rect == null) throw new IllegalArgumentException();
         Stack<Point2D> pointStack = new Stack<>();
         for (Point2D p : sets) {
-            if (pointInRect(p, rect)) pointStack.push(p);
+            if (isPointInRect(p, rect)) pointStack.push(p);
         }
         return pointStack;
     }
 
-    private boolean pointInRect(Point2D p, RectHV rect) {
+    /**
+     * Check if the point is inside the rectangle.
+     *
+     * @param p    point
+     * @param rect rectangle
+     * @return True if the point is inside rectangle.
+     */
+    private boolean isPointInRect(Point2D p, RectHV rect) {
         return p.x() <= rect.xmax() && p.x() >= rect.xmin() &&
                 p.y() <= rect.ymax() && p.y() >= rect.ymin();
     }
 
+    /**
+     * Return the nearest neighbor in the set to point p;
+     * return null if the set is empty.
+     *
+     * @param p point
+     * @return The nearest neighbor of p; null if set is empty.
+     * @throws IllegalArgumentException if p is null.
+     */
     public Point2D nearest(Point2D p) {
+        if (p == null) throw new IllegalArgumentException();
         if (sets.isEmpty()) return null;
         Point2D nearestP = sets.min();
-        double shortestDistance = nearestP.distanceSquaredTo(p);
+        double shortestDistance = nearestP.distanceTo(p);
         for (Point2D P : sets) {
             double distance = P.distanceTo(p);
             if (distance < shortestDistance) {
@@ -64,6 +113,11 @@ public class PointSET {
         return nearestP;
     }
 
+    /**
+     * Unit testing
+     *
+     * @param args give the number of the random points
+     */
     public static void main(String[] args) {
         int n = Integer.parseInt(args[0]);
         PointSET pointSET = new PointSET();
@@ -98,7 +152,7 @@ public class PointSET {
         Point2D p0 = new Point2D(0.2142, 0.57986);
         // Draw the pivot point
         StdDraw.setPenRadius(0.01);
-        StdDraw.setPenColor(StdDraw.YELLOW);
+        StdDraw.setPenColor(StdDraw.BOOK_LIGHT_BLUE);
         StdDraw.point(0.2142, 0.57986);
         StdDraw.show();
         // Draw the line with the nearest point in the set.
