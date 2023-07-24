@@ -15,7 +15,7 @@ import edu.princeton.cs.algs4.StdRandom;
 import java.util.Comparator;
 
 public class KdTree {
-    Node root;
+    private Node root;
 
     public KdTree() {
         root = null;
@@ -199,19 +199,30 @@ public class KdTree {
      * Draw all the points into {@link StdDraw#point(double, double)}
      */
     public void draw() {
-        draw(root);
+        draw(true, root);
     }
 
     /**
-     * Recursive draw point n.lb -> n ->n.rt
+     * Recursive draw point and subdivision line
      *
-     * @param n Node
+     * @param isEven True if node is in the even layer
+     * @param n      Node
      */
-    private void draw(Node n) {
+    private void draw(boolean isEven, Node n) {
         if (n == null) return;
-        draw(n.lb);
+        StdDraw.setPenRadius(0.01);
+        StdDraw.setPenColor(StdDraw.BLACK);
         StdDraw.point(n.p.x(), n.p.y());
-        draw(n.rt);
+        StdDraw.setPenRadius();
+        if (isEven) {
+            StdDraw.setPenColor(StdDraw.RED);
+            StdDraw.line(n.p.x(), n.rect.ymax(), n.p.x(), n.rect.ymin());
+        } else {
+            StdDraw.setPenColor(StdDraw.BLUE);
+            StdDraw.line(n.rect.xmin(), n.p.y(), n.rect.xmax(), n.p.y());
+        }
+        draw(!isEven, n.lb);
+        draw(!isEven, n.rt);
     }
 
     /**

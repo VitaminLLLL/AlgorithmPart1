@@ -16,7 +16,7 @@ import edu.princeton.cs.algs4.StdRandom;
 import java.util.Comparator;
 
 public class PointSET {
-    SET<Point2D> sets;
+    private SET<Point2D> sets;
 
     public PointSET() {
         sets = new SET<>();
