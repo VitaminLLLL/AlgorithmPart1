@@ -16,9 +16,11 @@ import java.util.Comparator;
 
 public class KdTree {
     private Node root;
+    private int size;
 
     public KdTree() {
         root = null;
+        size = 0;
     }
 
     /**
@@ -53,18 +55,7 @@ public class KdTree {
      * @return number of points - int
      */
     public int size() {
-        return size(root);
-    }
-
-    /**
-     * Recursive function to find the size of the parent node.
-     *
-     * @param node parent node.
-     * @return size of the parent node. return 0 if node is null.
-     */
-    private int size(Node node) {
-        if (node == null) return 0;
-        return size(node.lb) + size(node.rt) + 1;
+        return size;
     }
 
     /**
@@ -77,6 +68,7 @@ public class KdTree {
         if (p == null) throw new IllegalArgumentException();
         if (root == null) {
             root = new Node(p, new RectHV(0, 0, 1, 1));
+            size = 1;
             return;
         }
         insert(true, root, p);
@@ -95,11 +87,13 @@ public class KdTree {
             if (n.lb != null) insert(!isEven, n.lb, p);
             else {
                 createLeftBottomNode(isEven, p, n);
+                size++;
             }
         } else {
             if (n.rt != null) insert(!isEven, n.rt, p);
             else {
                 createRightTopNode(isEven, p, n);
+                size++;
             }
         }
     }
@@ -288,11 +282,15 @@ public class KdTree {
             result = n.p;
         }
         // check which subtree go first.
-        if (isLeftBottom(isEven, p, n))
-            return min(result, min(nearest(!isEven, p, n.lb, disc), nearest(!isEven, p, n.rt, disc), p), p);
-        else
-            return min(result, min(nearest(!isEven, p, n.rt, disc), nearest(!isEven, p, n.lb, disc), p), p);
-
+        if (isLeftBottom(isEven, p, n)) {
+            Point2D lb = nearest(!isEven, p, n.lb, disc);
+            if (lb == null) return min(result, nearest(!isEven, p, n.rt, disc), p);
+            return min(result, min(lb, nearest(!isEven, p, n.rt, lb.distanceSquaredTo(p)), p), p);
+        } else {
+            Point2D rt = nearest(!isEven, p, n.rt, disc);
+            if (rt == null) return min(result, nearest(!isEven, p, n.lb, disc), p);
+            return min(result, min(rt, nearest(!isEven, p, n.lb, rt.distanceSquaredTo(p)), p), p);
+        }
     }
 
     /**

@@ -98,9 +98,9 @@ public class PointSET {
         if (p == null) throw new IllegalArgumentException();
         if (sets.isEmpty()) return null;
         Point2D nearestP = sets.min();
-        for (Point2D P : sets) {
-            if (less(P, nearestP, p.distanceToOrder())) {
-                nearestP = P;
+        for (Point2D point : sets) {
+            if (less(point, nearestP, p.distanceToOrder())) {
+                nearestP = point;
             }
         }
         return nearestP;
