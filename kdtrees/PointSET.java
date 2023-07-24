@@ -5,7 +5,15 @@
  * PointSET, Bruteforce implementation of unit square points
  ******************************************************************************/
 
-import edu.princeton.cs.algs4.*;
+import edu.princeton.cs.algs4.Point2D;
+import edu.princeton.cs.algs4.RectHV;
+import edu.princeton.cs.algs4.SET;
+import edu.princeton.cs.algs4.Stack;
+import edu.princeton.cs.algs4.StdDraw;
+import edu.princeton.cs.algs4.StdOut;
+import edu.princeton.cs.algs4.StdRandom;
+
+import java.util.Comparator;
 
 public class PointSET {
     SET<Point2D> sets;
@@ -15,7 +23,7 @@ public class PointSET {
     }
 
     /**
-     * Return True if PointSet is empty
+     * Return True if PointSET is empty
      *
      * @return True if set is empty.
      */
@@ -33,7 +41,7 @@ public class PointSET {
     }
 
     /**
-     * Insert the point into PointSet
+     * Insert the point into PointSET
      *
      * @param p point
      * @throws IllegalArgumentException if point is null
@@ -73,21 +81,9 @@ public class PointSET {
         if (rect == null) throw new IllegalArgumentException();
         Stack<Point2D> pointStack = new Stack<>();
         for (Point2D p : sets) {
-            if (isPointInRect(p, rect)) pointStack.push(p);
+            if (rect.contains(p)) pointStack.push(p);
         }
         return pointStack;
-    }
-
-    /**
-     * Check if the point is inside the rectangle.
-     *
-     * @param p    point
-     * @param rect rectangle
-     * @return True if the point is inside rectangle.
-     */
-    private boolean isPointInRect(Point2D p, RectHV rect) {
-        return p.x() <= rect.xmax() && p.x() >= rect.xmin() &&
-                p.y() <= rect.ymax() && p.y() >= rect.ymin();
     }
 
     /**
@@ -102,15 +98,24 @@ public class PointSET {
         if (p == null) throw new IllegalArgumentException();
         if (sets.isEmpty()) return null;
         Point2D nearestP = sets.min();
-        double shortestDistance = nearestP.distanceTo(p);
         for (Point2D P : sets) {
-            double distance = P.distanceTo(p);
-            if (distance < shortestDistance) {
-                shortestDistance = distance;
+            if (less(P, nearestP, p.distanceToOrder())) {
                 nearestP = P;
             }
         }
         return nearestP;
+    }
+
+    /**
+     * Compare two point with comparator.
+     *
+     * @param p1   point 1
+     * @param p2   point 2
+     * @param comp point comparator
+     * @return True if p1 is less than p2
+     */
+    private boolean less(Point2D p1, Point2D p2, Comparator<Point2D> comp) {
+        return comp.compare(p1, p2) < 0;
     }
 
     /**
