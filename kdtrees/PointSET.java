@@ -2,7 +2,7 @@
  * Copyright (c) 2023. VitaminL
  * All rights reserved.
  * <p>
- * PointSET, Bruteforce implementation of unit square points
+ * PointSET, Bruteforce implementation of 2D points
  ******************************************************************************/
 
 import edu.princeton.cs.algs4.Point2D;

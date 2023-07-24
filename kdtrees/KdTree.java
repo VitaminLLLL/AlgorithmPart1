@@ -1,11 +1,18 @@
-import edu.princeton.cs.algs4.*;
-
-import java.util.Comparator;
-
 /*******************************************************************************
  * Copyright (c) 2023. VitaminL
  * All rights reserved.
+ * <p>
+ * KdTrees, KdTree implementation of 2D points
  ******************************************************************************/
+
+import edu.princeton.cs.algs4.Point2D;
+import edu.princeton.cs.algs4.RectHV;
+import edu.princeton.cs.algs4.Stack;
+import edu.princeton.cs.algs4.StdDraw;
+import edu.princeton.cs.algs4.StdOut;
+import edu.princeton.cs.algs4.StdRandom;
+
+import java.util.Comparator;
 
 public class KdTree {
     Node root;
@@ -20,8 +27,8 @@ public class KdTree {
     private static class Node {
         private final Point2D p;     // the point
         private final RectHV rect;   // the axis-aligned rectangle corresponding to this node
-        private Node lb;       // the left/bottom subtree
-        private Node rt;       // the right/top subtree
+        private Node lb;             // the left/bottom subtree
+        private Node rt;             // the right/top subtree
 
         public Node(Point2D p, RectHV rect) {
             this.p = p;
@@ -75,6 +82,13 @@ public class KdTree {
         insert(true, root, p);
     }
 
+    /**
+     * Recursive insert point to KdTree.
+     *
+     * @param isEven True if parent node is in the even layer
+     * @param p      point
+     * @param n      parent node
+     */
     private void insert(boolean isEven, Node n, Point2D p) {
         if (n.p.equals(p)) return;
         if (isLeftBottom(isEven, p, n)) {
@@ -164,6 +178,14 @@ public class KdTree {
         return contains(true, p, root);
     }
 
+    /**
+     * Recursive check if set contains point
+     *
+     * @param isEven True if parent node is in the even layer
+     * @param p      point
+     * @param n      parent node
+     * @return True if child should be in left or bottom
+     */
     private boolean contains(boolean isEven, Point2D p, Node n) {
         if (n == null) return false;
         if (n.p.equals(p)) return true;
@@ -230,21 +252,59 @@ public class KdTree {
      */
     public Point2D nearest(Point2D p) {
         if (p == null) throw new IllegalArgumentException();
-        // TODO
-
-        return null;
+        return nearest(true, p, root, 2); // maximum square distance is 1^2+1^2=2
     }
 
-    private Point2D nearest(Point2D p, Node n, double distance) {
+    /**
+     * Recursive function to return the nearest neighbour.
+     *
+     * @param isEven   True if parent node is in the even layer
+     * @param p        point
+     * @param n        parent node
+     * @param distance the current shortest path to point.
+     * @return The nearest neighbor of p; null if node is null or distance is larger.
+     */
+    private Point2D nearest(boolean isEven, Point2D p, Node n, double distance) {
         if (n == null) return null;
-        if (n.rect.distanceSquaredTo(p) >= distance) {
+        if (n.rect.distanceSquaredTo(p) > distance) {
             return null;
         }
+        Point2D result = null;
         double disc = n.p.distanceSquaredTo(p);
-        if (disc < distance) distance = disc;
-        return null;
+        if (disc > distance) {
+            disc = distance;
+        } else {
+            result = n.p;
+        }
+        // check which subtree go first.
+        if (isLeftBottom(isEven, p, n))
+            return min(result, min(nearest(!isEven, p, n.lb, disc), nearest(!isEven, p, n.rt, disc), p), p);
+        else
+            return min(result, min(nearest(!isEven, p, n.rt, disc), nearest(!isEven, p, n.lb, disc), p), p);
+
     }
 
+    /**
+     * Return point has shorter distance compared to p0
+     *
+     * @param p1 point 1
+     * @param p2 point 2
+     * @param p0 the pivot point
+     * @return point has shorter distance or null if points are null
+     */
+    private Point2D min(Point2D p1, Point2D p2, Point2D p0) {
+        if (p1 == null) return p2;
+        if (p2 == null) return p1;
+        if (p1.equals(p2)) return p1;
+        if (less(p1, p2, p0.distanceToOrder())) return p1;
+        else return p2;
+    }
+
+    /**
+     * Unit test
+     *
+     * @param args give the number of the random points
+     */
     public static void main(String[] args) {
         int n = Integer.parseInt(args[0]);
         KdTree kdSet = new KdTree();
@@ -274,5 +334,17 @@ public class KdTree {
         StdDraw.setPenColor(StdDraw.RED);
         StdDraw.rectangle(0.3, 0.45, 0.2, 0.25);
         StdDraw.show();
+
+        // Nearest Point
+        Point2D p0 = new Point2D(0.2142, 0.57986);
+        // Draw the pivot point
+        StdDraw.setPenRadius(0.01);
+        StdDraw.setPenColor(StdDraw.BOOK_LIGHT_BLUE);
+        StdDraw.point(0.2142, 0.57986);
+        StdDraw.show();
+        // Draw the line with the nearest point in the set.
+        StdDraw.setPenRadius();
+        Point2D p1 = kdSet.nearest(p0);
+        StdDraw.line(p0.x(), p0.y(), p1.x(), p1.y());
     }
 }
