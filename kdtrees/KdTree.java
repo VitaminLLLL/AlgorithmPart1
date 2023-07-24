@@ -72,37 +72,34 @@ public class KdTree {
             root = new Node(p, new RectHV(0, 0, 1, 1));
             return;
         }
-        Node n = root;
-        int layer = 0;
-        while (true) {
-            if (n.p.equals(p)) return;
-            if (isLeftBottom(layer, p, n)) {
-                if (n.lb != null) n = n.lb;
-                else {
-                    createLeftBottomNode(layer, p, n);
-                    return;
-                }
-            } else {
-                if (n.rt != null) n = n.rt;
-                else {
-                    createRightTopNode(layer, p, n);
-                    return;
-                }
+        insert(true, root, p);
+    }
+
+    private void insert(boolean isEven, Node n, Point2D p) {
+        if (n.p.equals(p)) return;
+        if (isLeftBottom(isEven, p, n)) {
+            if (n.lb != null) insert(!isEven, n.lb, p);
+            else {
+                createLeftBottomNode(isEven, p, n);
             }
-            layer++;
+        } else {
+            if (n.rt != null) insert(!isEven, n.rt, p);
+            else {
+                createRightTopNode(isEven, p, n);
+            }
         }
     }
 
     /**
      * Create the new left or bottom node
      *
-     * @param layer parent node layer
-     * @param p     point
-     * @param n     parent node
+     * @param isEven True if parent node is in the even layer
+     * @param p      point
+     * @param n      parent node
      */
-    private void createLeftBottomNode(int layer, Point2D p, Node n) {
+    private void createLeftBottomNode(boolean isEven, Point2D p, Node n) {
         RectHV rect;
-        if (isEvenLayer(layer)) // Left node
+        if (isEven) // Left node
             rect = new RectHV(n.rect.xmin(), n.rect.ymin(), n.p.x(), n.rect.ymax());
         else  // Bottom node
             rect = new RectHV(n.rect.xmin(), n.rect.ymin(), n.rect.xmax(), n.p.y());
@@ -112,13 +109,13 @@ public class KdTree {
     /**
      * Create the new right or top node
      *
-     * @param layer parent node layer
-     * @param p     point
-     * @param n     parent node
+     * @param isEven True if parent node is in the even layer
+     * @param p      point
+     * @param n      parent node
      */
-    private void createRightTopNode(int layer, Point2D p, Node n) {
+    private void createRightTopNode(boolean isEven, Point2D p, Node n) {
         RectHV rect;
-        if (isEvenLayer(layer)) // Right node
+        if (isEven) // Right node
             rect = new RectHV(n.p.x(), n.rect.ymin(), n.rect.xmax(), n.rect.ymax());
         else // Top node
             rect = new RectHV(n.rect.xmin(), n.p.y(), n.rect.xmax(), n.rect.ymax());
@@ -130,26 +127,16 @@ public class KdTree {
      * if layers is even, point should compare x;
      * Otherwise point should compare y.
      *
-     * @param layer parent node layer
-     * @param p     point
-     * @param n     parent node
+     * @param isEven True if parent node is in the even layer
+     * @param p      point
+     * @param n      parent node
      * @return True if child should be in left or bottom
      */
-    private boolean isLeftBottom(int layer, Point2D p, Node n) {
-        if (isEvenLayer(layer))
+    private boolean isLeftBottom(boolean isEven, Point2D p, Node n) {
+        if (isEven)
             return less(p, n.p, Point2D.X_ORDER);
         else
             return less(p, n.p, Point2D.Y_ORDER);
-    }
-
-    /**
-     * Return if node is in even layer
-     *
-     * @param layer node layer
-     * @return True if node is in even layer
-     */
-    private boolean isEvenLayer(int layer) {
-        return layer % 2 == 0;
     }
 
     /**
@@ -174,17 +161,16 @@ public class KdTree {
      */
     public boolean contains(Point2D p) {
         if (p == null) throw new IllegalArgumentException();
-        Node n = root;
-        int layer = 0;
-        while (n != null) {
-            if (n.p.equals(p)) return true;
-            if (isLeftBottom(layer, p, n))
-                n = n.lb;
-            else
-                n = n.rt;
-            layer++;
-        }
-        return false;
+        return contains(true, p, root);
+    }
+
+    private boolean contains(boolean isEven, Point2D p, Node n) {
+        if (n == null) return false;
+        if (n.p.equals(p)) return true;
+        if (isLeftBottom(isEven, p, n))
+            return contains(!isEven, p, n.lb);
+        else
+            return contains(!isEven, p, n.rt);
     }
 
     /**
